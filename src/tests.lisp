@@ -21,3 +21,5 @@ L  .\\#
   t)
 
 
+(defun test-last-is-space ()
+  (assert (= 3 (cols (map-from-string "#R ")))))
