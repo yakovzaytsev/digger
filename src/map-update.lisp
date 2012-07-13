@@ -2,11 +2,14 @@
 
 (in-package "DIGGER")
 
-(defun count-lambdas (map)
+(defun lambdas-count (map)
   (loop for x from 0 to (- (cols map) 1)
      sum (loop for y from 0 to (- (rows map) 1)
            when (lambda? map x y)
            count it)))
+
+(defmacro no-lambdas-left? (map)
+  `(= 0 (lambdas-count ,map)))
 
 (defun update (map x y new-map)
   (case (map-at map x y)
@@ -27,7 +30,7 @@
                            (empty? map (+ x 1) (- y 1)))
                   (setf (map-at new-map x y) +empty+
                         (map-at new-map (+ x 1) (- y 1) +rock+))))))
-    (#\L (when (no-lambdas-left map) (setf (map-at new-map x y +open-lift+))))))
+    (#\L (when (no-lambdas-left? map) (setf (map-at new-map x y +open-lift+))))))
 
 (defun map-update (map)
   "The updated MAP is returned"

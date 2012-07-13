@@ -25,8 +25,8 @@ L  .\\#
   (assert (= 3 (cols (map-from-string "#R ")))))
 
 
-(defun test-count-lambdas ()
-  (assert (= 3 (count-lambdas (map-from-string
+(defun test-lambdas-count ()
+  (assert (= 3 (lambdas-count (map-from-string
 "######
 #. *R#
 #  \\.#
