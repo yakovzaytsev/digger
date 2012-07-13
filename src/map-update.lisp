@@ -2,11 +2,40 @@
 
 (in-package "DIGGER")
 
+(defvar *lambdas* 0)
+
+(defun move-robot (x y map x1 y1)
+  (cond ((member (map-at map x1 y1) (list +empty+ +earth+
+                                          +lambda+ +open-lift+) :test #'equalp)
+           (progn (setf (map-at x1 y1) +robot+
+                        (map-at x y) +empty+)
+                  (case (map-at map x1 y1)
+                    (#\\ (progn (incf *lambdas*)
+                                map))
+                    (#\O 'completed))))
+        ((rock? map x1 y1)
+           (symbol-macrolet ((moves-right? `(and (= x1 (+ x 1)) (= y1 y)))
+                             (moves-left? `(and (= x1 (- x 1)) (= y1 y))))
+             (cond (moves-right? )))))) ;...
+
+(defun execute-command (x y command map)
+  "With (X, Y) being location of the Robot execute a COMMAND,
+then return updated MAP.
+In case of Abort, returns NIL.
+If mine is completed returns COMPLETED"
+  (case command
+    (#\L (move-robot x y map (- x 1) y))
+    (#\R (move-robot x y map (+ x 1) y))
+    (#\U (move-robot x y map x (+ y 1)))
+    (#\D (move-robot x y map x (- y 1)))
+    (#\W map)
+    (#\A nil)))
+
 (defun lambdas-count (map)
   (loop for x from 0 to (- (cols map) 1)
      sum (loop for y from 0 to (- (rows map) 1)
-           when (lambda? map x y)
-           count it)))
+            when (lambda? map x y)
+            count it)))
 
 (defmacro no-lambdas-left? (map)
   `(= 0 (lambdas-count ,map)))

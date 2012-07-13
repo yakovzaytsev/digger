@@ -27,6 +27,10 @@
 
 (defconstant +soil+ '(#\\ #\. #\Space))
 
+(defconstant +earth+ #\.)
+
+(defconstant +robot+ #\R)
+
 (defmacro empty? (map x y)
   `(equalp +empty+ (map-at ,map ,x ,y)))
 
@@ -35,6 +39,9 @@
 
 (defmacro lambda? (map x y)
   `(equalp +lambda+ (map-at ,map ,x ,y)))
+
+(defmacro rock? (map x y)
+  `(equalp +rock+ (map-at ,map ,x ,y)))
 
 (defun load-map (stream)
   (loop :for line := (read-line stream nil) :while (and line
