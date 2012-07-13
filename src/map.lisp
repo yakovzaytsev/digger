@@ -14,6 +14,12 @@
 (defmacro rows (map)
   `(array-dimension ,map 0))
 
+(defmacro map-at (map x y)
+  `(aref ,map ,y ,x))
+
+(defmacro empty? (map x y)
+  `(equalp #\ (map-at ,map ,x ,y)))
+
 (defun load-map (stream)
   (loop :for line := (read-line stream nil) :while (and line
                                                         (not (= 0 (length line))))
@@ -25,3 +31,4 @@
 
 (defmacro map-from-string (s)
   `(with-input-from-string (stream ,s) (load-map stream)))
+
