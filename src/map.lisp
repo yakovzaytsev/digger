@@ -55,3 +55,5 @@
 (defmacro map-from-string (s)
   `(with-input-from-string (stream ,s) (load-map stream)))
 
+(defmacro copy-map (map)
+  `(copy-array ,map))

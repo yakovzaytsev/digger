@@ -5,6 +5,7 @@
 (asdf:defsystem :digger
   :serial t
   :version "0.1"
+  :depends-on (:cl-utilities)
   :components ((:file "package")
                (:file "util")
                (:file "map")

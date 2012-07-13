@@ -1,6 +1,7 @@
 ;;; -*- Mode: Lisp; Syntax: Common-Lisp; Indent-Tabs-Mode: NIL -*-
 
 (defpackage :digger
-  (:use "CL"))
+  (:use "CL")
+  (:import-from cl-utilities "COPY-ARRAY"))
 
 
