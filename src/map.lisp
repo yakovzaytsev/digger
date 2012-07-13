@@ -22,3 +22,6 @@
                                            (length (car lines)))
                                      :element-type 'character
                                      :initial-contents (reverse lines)))))
+
+(defmacro map-from-string (s)
+  `(with-input-from-string (stream ,s) (load-map stream)))
