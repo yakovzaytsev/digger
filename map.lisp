@@ -5,6 +5,9 @@
 (defun empty-map (cols rows)
   (make-array `(,rows ,cols) :element-type 'character))
 
+(defmacro same-size-map (map)
+  `(apply #'empty-map (reverse (array-dimensions ,map))))
+
 (defmacro cols (map)
   `(array-dimension ,map 1))
 
