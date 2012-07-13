@@ -2,5 +2,5 @@
 
 (in-package "DIGGER")
 
-(defun empty-map (n m)
-  (make-array `(,n ,m) :element-type '(unsigned-byte 8)))
+(defun empty-map (cols rows)
+  (make-array `(,rows ,cols) :element-type '(unsigned-byte 8)))
