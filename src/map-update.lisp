@@ -18,9 +18,15 @@
              (symbol-macrolet ((moves-right? `(and (= x1 (+ x 1)) (= y1 y)))
                                (moves-left? `(and (= x1 (- x 1)) (= y1 y))))
                (cond ((and moves-right? (empty? map (+ x 2) y))
-                      (progn ))
+                        (progn (setf (map-at new-map x1 y1) +robot+
+                                     (map-at new-map x y) +empty+
+                                     (map-at new-map (+ x 2) y +rock+))
+                               new-map))
                      ((and moves-left? (empty? map (- x 2) y))
-                      (progn ))))))))
+                        (progn (setf (map-at new-map x1 y1) +robot+
+                                     (map-at new-map x y) +empty+
+                                     (map-at new-map (- x 2) y +rock+))
+                               new-map))))))))
 
 (defun execute-command (x y command map)
   "With (X, Y) being location of the Robot execute a COMMAND,
@@ -32,7 +38,7 @@ If mine is completed returns COMPLETED"
     (#\R (move-robot x y map (+ x 1) y))
     (#\U (move-robot x y map x (+ y 1)))
     (#\D (move-robot x y map x (- y 1)))
-    (#\W map)                           ;MAP or new copy of it?
+    (#\W map)                           ;or copy of it?
     (#\A nil)))
 
 (defun lambdas-count (map)
