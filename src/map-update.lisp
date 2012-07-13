@@ -3,7 +3,25 @@
 (in-package "DIGGER")
 
 (defun update (map x y new-map)
-  )
+  (case (map-at map x y)
+    (#\R (case (map-at map x (- y 1))
+           (#\ (setf (map-at new-map x y) +empty+
+                     (map-at new-map x (- y 1) +rock+)))
+           (#\R (cond ((and (empty? (map-at map (+ x 1) y))
+                            (empty? (map-at map (+ x 1) (- y 1))))
+                         (setf (map-at new-map x y) +empty+
+                               (map-at new-map (+ x 1) (- y 1)) +rock+))
+                      ((>= 1 x) (when (and (or (not-empty? map (+ x 1))
+                                               (not-empty? map (+ x 1) (- y 1)))
+                                           (empty? map (- x 1) y)
+                                           (empty? map (- x 1 (- y 1))))
+                                  (setf (map-at new-map x y) +empty+
+                                        (map-at new-map (- x 1) (- y 1) +rock+))))))
+           (#\\ (when (and (empty? map (+ x 1) y)
+                           (empty? map (+ x 1) (- y 1)))
+                  (setf (map-at new-map x y) +empty+
+                        (map-at new-map (+ x 1) (- y 1) +rock+))))))
+    (#\L (when (no-lambdas-left map) (setf (map-at new-map x y +open-lift+))))))
 
 (defun map-update (map)
   "The updated MAP is returned"
