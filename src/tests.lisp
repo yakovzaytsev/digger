@@ -36,15 +36,19 @@ L  .\\#
 
 (defun test-simple-a* (map)
   (let* ((map (map-from-string map))
-         (path (a* map (find-char #\R map) (find-char #\O map))))
-    (dolist (node path)
-      (setf (aref map (y node) (x node)) #\+))
-    (format t "~{~A~%~}" (let (rows)
-                           (dotimes (i (rows map) rows)
-                             (push (format nil "~{~C~}"
-                                           (let (chars)
-                                             (dotimes (j (cols map)
-                                                         (nreverse chars))
-                                               (push (aref map i j) chars))))
-                                   rows))))
-    path))
+         (r-pos (find-char #\R map))
+         (l-pos (find-char #\L map)))
+    (setf (aref map (y r-pos) (x r-pos)) #\.
+          (aref map (y l-pos) (x l-pos)) #\.)
+    (let ((path (a* map r-pos l-pos)))
+      (dolist (node path)
+        (setf (aref map (y node) (x node)) #\+))
+      (format t "~{~A~%~}" (let (rows)
+                             (dotimes (i (rows map) rows)
+                               (push (format nil "~{~C~}"
+                                             (let (chars)
+                                               (dotimes (j (cols map)
+                                                           (nreverse chars))
+                                                 (push (aref map i j) chars))))
+                                     rows))))
+      path)))

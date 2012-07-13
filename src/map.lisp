@@ -25,7 +25,7 @@
 
 (defconstant +lambda+ #\\)
 
-(defconstant +soil+ '(#\\ #\. #\Space #\O))
+(defconstant +soil+ '(#\\ #\. #\Space))
 
 (defmacro empty? (map x y)
   `(equalp +empty+ (map-at ,map ,x ,y)))
