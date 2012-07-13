@@ -17,13 +17,15 @@
 (defmacro map-at (map x y)
   `(aref ,map ,y ,x))
 
-(defconstant +empty+ #\ )
+(defconstant +empty+ #\Space)
 
 (defconstant +rock+ #\R)
 
 (defconstant +open-lift+ #\O "Open Lambda Lift")
 
 (defconstant +lambda+ #\\)
+
+(defconstant +soil+ '(#\\ #\. #\Space #\O))
 
 (defmacro empty? (map x y)
   `(equalp +empty+ (map-at ,map ,x ,y)))

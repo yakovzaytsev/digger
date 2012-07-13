@@ -6,4 +6,6 @@
   :serial t
   :version "0.1"
   :components ((:file "package")
-               (:file "map")))
+               (:file "util")
+               (:file "map")
+               (:file "a-star")))
