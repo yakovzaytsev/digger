@@ -1,0 +1,11 @@
+#!/usr/bin/sbcl --script
+
+(in-package "CL-USER")
+
+(load (merge-pathnames "src/load.lisp"
+                       (make-pathname :directory (pathname-directory
+                                                  *load-truename*))))
+
+(in-package "DIGGER")
+
+(princ (load-map *standard-input*))

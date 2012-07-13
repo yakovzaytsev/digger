@@ -2,7 +2,9 @@
 
 (in-package "CL-USER")
 
+(require 'asdf)
+
 (pushnew (make-pathname :directory (pathname-directory *load-truename*))
          asdf:*central-registry*)
 
-(ql:quickload "digger")
+(asdf:oos 'asdf:load-op "digger")

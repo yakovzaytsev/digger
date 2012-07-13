@@ -5,4 +5,5 @@
 (asdf:defsystem :digger
   :serial t
   :version "0.1"
-  :components ((:file "package")))
+  :components ((:file "package")
+               (:file "map")))
