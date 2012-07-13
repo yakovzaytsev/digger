@@ -23,11 +23,16 @@
 
 (defconstant +open-lift+ #\O "Open Lambda Lift")
 
+(defconstant +lambda+ #\\)
+
 (defmacro empty? (map x y)
   `(equalp +empty+ (map-at ,map ,x ,y)))
 
 (defmacro not-empty? (&rest args)
   `(not (empty? ,@args)))
+
+(defmacro lambda? (map x y)
+  `(equalp +lambda+ (map-at ,map ,x ,y)))
 
 (defun load-map (stream)
   (loop :for line := (read-line stream nil) :while (and line

@@ -2,6 +2,12 @@
 
 (in-package "DIGGER")
 
+(defun count-lambdas (map)
+  (loop for x from 0 to (- (cols map) 1)
+     sum (loop for y from 0 to (- (rows map) 1)
+           when (lambda? map x y)
+           count it)))
+
 (defun update (map x y new-map)
   (case (map-at map x y)
     (#\R (case (map-at map x (- y 1))

@@ -23,3 +23,14 @@ L  .\\#
 
 (defun test-last-is-space ()
   (assert (= 3 (cols (map-from-string "#R ")))))
+
+
+(defun test-count-lambdas ()
+  (assert (= 3 (count-lambdas (map-from-string
+"######
+#. *R#
+#  \\.#
+#\\ * #
+L  .\\#
+######"
+                               )))))
