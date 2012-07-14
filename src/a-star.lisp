@@ -21,16 +21,18 @@
   (+ (g node) (h node)))
 
 (defun move-dir (node)
-  (with-slots (parent pos) node
-    (if (null parent)
-        #\W
-        (let ((parent-pos (pos (parent node))))
-          (cond
-           ((< (x parent-pos) (x pos)) #\R)
-           ((> (x parent-pos) (x pos)) #\L)
-           ((< (y parent-pos) (y pos)) #\U)
-           ((> (y parent-pos) (y pos)) #\D)
-           (t #\W))))))
+  (etypecase node
+    (character node)
+    (node (with-slots (parent pos) node
+            (if (null parent)
+                #\W
+                (let ((parent-pos (pos (parent node))))
+                  (cond
+                   ((< (x parent-pos) (x pos)) #\R)
+                   ((> (x parent-pos) (x pos)) #\L)
+                   ((< (y parent-pos) (y pos)) #\U)
+                   ((> (y parent-pos) (y pos)) #\D)
+                   (t #\W))))))))
 
 (defun pt (x y)
   (complex y x))
