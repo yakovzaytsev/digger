@@ -17,31 +17,31 @@
 (defmacro map-at (map x y)
   `(aref ,map ,y ,x))
 
-(defconstant +empty+ #\Space)
+(defparameter +empty+ #\Space)
 
-(defconstant +rock+ #\R)
+(defparameter +rock+ #\*)
 
-(defconstant +open-lift+ #\O "Open Lambda Lift")
+(defparameter +open-lift+ #\O "Open Lambda Lift")
 
-(defconstant +lambda+ #\\)
+(defparameter +lambda+ #\\)
 
-(defconstant +soil+ '(#\\ #\. #\Space))
+(defparameter +soil+ '(#\\ #\. #\Space))
 
-(defconstant +earth+ #\.)
+(defparameter +earth+ #\.)
 
-(defconstant +robot+ #\R)
+(defparameter +robot+ #\R)
 
-(defmacro empty? (map x y)
-  `(equalp +empty+ (map-at ,map ,x ,y)))
+(defun empty? (map x y)
+  (char= +empty+ (map-at map x y)))
 
-(defmacro not-empty? (&rest args)
-  `(not (empty? ,@args)))
+(defun not-empty? (map x y)
+  `(not (empty? map x y)))
 
-(defmacro lambda? (map x y)
-  `(equalp +lambda+ (map-at ,map ,x ,y)))
+(defun lambda? (map x y)
+  (char= +lambda+ (map-at map x y)))
 
-(defmacro rock? (map x y)
-  `(equalp +rock+ (map-at ,map ,x ,y)))
+(defun rock? (map x y)
+  (char= +rock+ (map-at map x y)))
 
 (defun load-map (stream)
   (loop :for line := (read-line stream nil) :while (and line

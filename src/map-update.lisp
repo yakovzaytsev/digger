@@ -6,27 +6,26 @@
 
 (defun move-robot (x y map x1 y1)
   (let ((new-map (copy-map map)))
-    (cond ((member (map-at map x1 y1)
-                   (list +empty+ +earth+ +lambda+ +open-lift+) :test #'equalp)
-             (progn (setf (map-at new-map x1 y1) +robot+
-                          (map-at new-map x y) +empty+)
-                    (case (map-at map x1 y1)
-                      (#\\ (progn (incf *lambdas*)
-                                  new-map))
-                      (#\O 'completed))))
+    (cond ((member (map-at map x1 y1) +soil+)
+           (setf (map-at new-map x1 y1) +robot+
+                 (map-at new-map x y) +empty+)
+           (case (map-at map x1 y1)
+             (#\\ (incf *lambdas*) new-map)
+             (#\O 'completed)
+             (otherwise new-map)))
           ((rock? map x1 y1)
-             (symbol-macrolet ((moves-right? `(and (= x1 (+ x 1)) (= y1 y)))
-                               (moves-left? `(and (= x1 (- x 1)) (= y1 y))))
-               (cond ((and moves-right? (empty? map (+ x 2) y))
-                        (progn (setf (map-at new-map x1 y1) +robot+
-                                     (map-at new-map x y) +empty+
-                                     (map-at new-map (+ x 2) y +rock+))
-                               new-map))
-                     ((and moves-left? (empty? map (- x 2) y))
-                        (progn (setf (map-at new-map x1 y1) +robot+
-                                     (map-at new-map x y) +empty+
-                                     (map-at new-map (- x 2) y +rock+))
-                               new-map))))))))
+           (symbol-macrolet ((moves-right? `(and (= x1 (1+ x)) (= y1 y)))
+                             (moves-left?  `(and (= x1 (1- x)) (= y1 y))))
+             (cond ((and moves-right? (empty? map (+ x 2) y))
+                    (setf (map-at new-map x1 y1) +robot+
+                          (map-at new-map x y) +empty+
+                          (map-at new-map (+ x 2) y) +rock+)
+                    new-map)
+                   ((and moves-left? (empty? map (- x 2) y))
+                    (setf (map-at new-map x1 y1) +robot+
+                          (map-at new-map x y) +empty+
+                          (map-at new-map (- x 2) y) +rock+)
+                    new-map)))))))
 
 (defun execute-command (x y command map)
   "With (X, Y) being location of the Robot execute a COMMAND,
@@ -46,36 +45,38 @@ If mine is completed returns COMPLETED"
      sum (loop for y from 0 to (- (rows map) 1)
             when (lambda? map x y)
             count it)))
+;; alternative: (length (find-lamdas map))
 
 (defmacro no-lambdas-left? (map)
   `(= 0 (lambdas-count ,map)))
 
 (defun update (map x y new-map)
+  (setf (map-at new-map x y) (map-at map x y))
   (case (map-at map x y)
-    (#\R (case (map-at map x (- y 1))
-           (#\ (setf (map-at new-map x y) +empty+
-                     (map-at new-map x (- y 1) +rock+)))
-           (#\R (cond ((and (empty? (map-at map (+ x 1) y))
-                            (empty? (map-at map (+ x 1) (- y 1))))
-                         (setf (map-at new-map x y) +empty+
-                               (map-at new-map (+ x 1) (- y 1)) +rock+))
-                      ((>= 1 x) (when (and (or (not-empty? map (+ x 1))
-                                               (not-empty? map (+ x 1) (- y 1)))
-                                           (empty? map (- x 1) y)
-                                           (empty? map (- x 1 (- y 1))))
+    (#\* (case (map-at map x (1- y))
+           (#\Space (setf (map-at new-map x y) +empty+
+                          (map-at new-map x (1- y)) +rock+))
+           (#\* (cond ((and (empty? map (1+ x) y)
+                            (empty? map (1+ x) (1- y)))
+                       (setf (map-at new-map x y) +empty+
+                             (map-at new-map (1+ x) (1- y)) +rock+))
+                      ((>= 1 x) (when (and (or (not-empty? map (1+ x) y)
+                                               (not-empty? map (1+ x) (1- y)))
+                                           (empty? map (1- x) y)
+                                           (empty? map (1- x) (1- y)))
                                   (setf (map-at new-map x y) +empty+
-                                        (map-at new-map (- x 1) (- y 1) +rock+))))))
-           (#\\ (when (and (empty? map (+ x 1) y)
-                           (empty? map (+ x 1) (- y 1)))
+                                        (map-at new-map (1- x) (1- y)) +rock+)))))
+           (#\\ (when (and (empty? map (1+ x) y)
+                           (empty? map (1+ x) (1- y)))
                   (setf (map-at new-map x y) +empty+
-                        (map-at new-map (+ x 1) (- y 1) +rock+))))))
-    (#\L (when (no-lambdas-left? map) (setf (map-at new-map x y +open-lift+))))))
+                        (map-at new-map (1+ x) (1- y)) +rock+)))))
+    (#\L (when (no-lambdas-left? map)
+           (setf (map-at new-map x y) +open-lift+)))))
 
 (defun map-update (map)
   "The updated MAP is returned"
   (loop with new-map = (same-size-map map)
-     for x from 0 to (- (cols map) 1)
-     do (loop for y from (- (rows map) 1) downto 1
+     for x from 0 to (1- (cols map))
+     do (loop for y from 0 to (1- (rows map))
            do (update map x y new-map))
-     finally return new-map))
-
+     finally (return new-map)))

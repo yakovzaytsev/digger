@@ -9,4 +9,6 @@
   :components ((:file "package")
                (:file "util")
                (:file "map")
+               (:file "map-update")
                (:file "a-star")))
+

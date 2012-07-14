@@ -38,17 +38,25 @@ L  .\\#
   (let* ((map (map-from-string map))
          (r-pos (find-char #\R map))
          (l-pos (find-char #\L map)))
-    (setf (aref map (y r-pos) (x r-pos)) #\.
-          (aref map (y l-pos) (x l-pos)) #\.)
+    (setf (map-at map (x r-pos) (y r-pos)) #\.
+          (map-at map (x l-pos) (y l-pos)) #\.)
     (let ((path (a* map r-pos l-pos)))
       (dolist (node path)
-        (setf (aref map (y node) (x node)) #\+))
+        (setf (map-at map (x (pos node)) (y (pos node))) (move-char node)))
       (format t "~{~A~%~}" (let (rows)
                              (dotimes (i (rows map) rows)
                                (push (format nil "~{~C~}"
                                              (let (chars)
                                                (dotimes (j (cols map)
                                                            (nreverse chars))
-                                                 (push (aref map i j) chars))))
+                                                 (push (map-at map j i) chars))))
                                      rows))))
       path)))
+
+(defun move-char (node)
+  (ecase (move-dir node)
+    (#\W #\+)
+    (#\L #\<)
+    (#\R #\>)
+    (#\D #\v)
+    (#\U #\^)))
