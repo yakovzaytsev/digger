@@ -3,7 +3,7 @@
 (in-package "DIGGER")
 
 
-(defvar *solution*)
+(defvar *solution* ())
 
 (defun print-solution ()
   (when *solution*
@@ -16,32 +16,40 @@
   (let* ((robot (find-char #\R map))
          (lift (find-char #\L map))
          (lambdas (find-lambdas map))
-         (c (center-mass goals)))
+         (path (dfs map robot lambdas))
+         (last-node (car (last (car (last path)))))
+         (final-move (with-slots (map pos) last-node
+                       (if (find-char #\O map)
+                           (or (a* map pos lift)
+                               (list #\A))
+                           (list #\A))))
+         (whole-path (append path final-move))
+         (score (score whole-path)))
+    (when (or (null *solution*)
+              (> score (cdr *solution*)))
+      (setf *solution* (cons whole-path score)))))
+
+(defun dfs (map start goals)
+  "Find first complete (or maximum length) path through all nodes."
+  (let ((c (center-mass goals)))
     (dolist (goal (sort (copy-list goals) #'< :key (lambda (x)
                                                      (manhattan x c))))
-      (let* ((path (dfs robot lambdas))
-             (last-node (car path))
-             (last-map (next-map (map last-node)
-                                 (pos last-node) (pos last-node)))
-             (final-move (if (find-char #\O last-map)
-                             (or (a* (map last-node) (pos last-node) lift)
-                                 (list #\A))
-                             (list #\A)))
-             (whole-path (cons final-move path))
-             (score (score whole-path)))
-        (when (or (null *solution*)
-                  (> score (cdr *solution*)))
-          (setf *solution* (cons (reverse whole-path) score)))))))
+      (let ((move (a* map start goal)))
+        (when move
+          (if (cdr goals)
+              (let ((remainder (dfs (map (car (last move)))
+                                    goal (remove goal goals))))
+                (when remainder
+                  (return (cons move remainder))))
+              (return (list move))))))))
 
-(defun dfs (start goals)
-  )
 
 (defun score (path)
   (let ((multiplier 50)
         score)
-    (if (char= #\A (caar path))
-        (setf multiplier 25
-              path (cdr path)))
+    (when (eql #\A (car (last path)))
+      (setf multiplier 25
+            path (butlast path)))
     (- (* multiplier (length path) 25)
        (reduce #'+ path :key #'length))))
 
