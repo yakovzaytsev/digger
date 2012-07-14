@@ -16,12 +16,16 @@
           ((rock? map x1 y1)
            (symbol-macrolet ((moves-right? `(and (= x1 (1+ x)) (= y1 y)))
                              (moves-left?  `(and (= x1 (1- x)) (= y1 y))))
-             (cond ((and moves-right? (empty? map (+ x 2) y))
+             (cond ((and moves-right?
+                         (< x (- (cols map) 2))
+                         (empty? map (+ x 2) y))
                     (setf (map-at new-map x1 y1) +robot+
                           (map-at new-map x y) +empty+
                           (map-at new-map (+ x 2) y) +rock+)
                     new-map)
-                   ((and moves-left? (empty? map (- x 2) y))
+                   ((and moves-left?
+                         (> x 1)
+                         (empty? map (- x 2) y))
                     (setf (map-at new-map x1 y1) +robot+
                           (map-at new-map x y) +empty+
                           (map-at new-map (- x 2) y) +rock+)
@@ -60,8 +64,8 @@ If mine is completed returns COMPLETED"
                             (empty? map (1+ x) (1- y)))
                        (setf (map-at new-map x y) +empty+
                              (map-at new-map (1+ x) (1- y)) +rock+))
-                      ((>= 1 x) (when (and (or (not-empty? map (1+ x) y)
-                                               (not-empty? map (1+ x) (1- y)))
+                      ((>= 1 x) (when (and (or (not (empty? map (1+ x) y))
+                                               (not (empty? map (1+ x) (1- y))))
                                            (empty? map (1- x) y)
                                            (empty? map (1- x) (1- y)))
                                   (setf (map-at new-map x y) +empty+

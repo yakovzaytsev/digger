@@ -40,9 +40,6 @@
 (defun empty? (map x y)
   (char= +empty+ (map-at map x y)))
 
-(defun not-empty? (map x y)
-  `(not (empty? map x y)))
-
 (defun lambda? (map x y)
   (char= +lambda+ (map-at map x y)))
 

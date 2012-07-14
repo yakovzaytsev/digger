@@ -14,8 +14,8 @@
   h)
 
 (defmethod print-object ((obj node) stream)
-   (format stream "<~A,~A-~A-~C>"
-           (y (pos obj)) (x (pos obj)) (f obj) (move-dir obj)))
+   (format stream "<~A,~A-~C>"
+           (x (pos obj)) (y (pos obj)) (move-dir obj)))
 
 (defun f (node)
   (+ (g node) (h node)))
