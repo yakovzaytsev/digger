@@ -16,38 +16,59 @@
   (let* ((robot (find-char #\R map))
          (lift (find-char #\L map))
          (lambdas (find-lambdas map))
-         (path (dfs map robot lambdas))
-         (last-node (car (last (car (last path)))))
-         (final-move (with-slots (map pos) last-node
-                       (if (find-char #\O map)
-                           (or (a* map pos lift)
-                               (list #\A))
-                           (list #\A))))
-         (whole-path (append path final-move))
-         (score (score whole-path)))
-    (when (or (null *solution*)
-              (> score (cdr *solution*)))
-      (setf *solution* (cons whole-path score)))))
+         (*solution* nil))
+    (dolist (path (dfs map robot lambdas))
+      (let* ((last-node (car (last (car (last path)))))
+             (final-move (with-slots (map pos) last-node
+;                           (if (find-char #\O map)
+                               (progn (setf (map-at map (x lift) (y lift))
+                                            #\Space)
+                                      (or (a* map pos lift)
+                                          '(#\A)))))
+;                               '(#\A))))
+             (whole-path (append path (list final-move)))
+             (score (score whole-path)))
+        (when (or (null *solution*)
+                  (> score (cdr *solution*)))
+          (setf *solution* (cons whole-path score)))))
+    *solution*))
 
 (defun dfs (map start goals)
-  "Find first complete (or maximum length) path through all nodes."
-  (let ((c (center-mass goals)))
-    (dolist (goal (sort (copy-list goals) #'< :key (lambda (x)
-                                                     (manhattan x c))))
+  (let ((c (center-mass goals))
+        rez)
+    (dolist (goal (sort (copy-list goals) #'<
+                        :key (lambda (x) (dist x start c))))
       (let ((move (a* map start goal)))
         (when move
-          (if (cdr goals)
-              (let ((remainder (dfs (map (car (last move)))
-                                    goal (remove goal goals))))
-                (when remainder
-                  (return (cons move remainder))))
-              (return (list move))))))))
+          (let ((tail (dfs1 (map (car (last move)))
+                            goal
+                            (remove goal goals))))
+            (when tail
+              (push (cons move tail) rez))))))
+    (nreverse rez)))
 
+(defun dfs1 (map start goals)
+  (let ((c (center-mass goals)))
+    (dolist (goal (sort (copy-list goals) #'<
+                        :key (lambda (x) (dist x start c))))
+      (let ((move (a* map start goal)))
+        (if (cdr goals)  ;; some goals remain
+            (when move
+              (let ((tail (dfs1 (map (car (last move)))
+                                goal
+                                (remove goal goals))))
+                (when tail
+                  (return (cons (cdr move) tail)))))
+            (return (list (cdr move))))))))
+
+(defun dist (x start center)
+  (+ (manhattan x center)
+     (manhattan x start)))
 
 (defun score (path)
   (let ((multiplier 50)
         score)
-    (when (eql #\A (car (last path)))
+    (when (eql #\A (caar (last path)))
       (setf multiplier 25
             path (butlast path)))
     (- (* multiplier (length path) 25)
