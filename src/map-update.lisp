@@ -37,7 +37,7 @@ If mine is completed returns COMPLETED"
     (#\R (move-robot x y map (+ x 1) y))
     (#\U (move-robot x y map x (+ y 1)))
     (#\D (move-robot x y map x (- y 1)))
-    (#\W map)                           ;or copy of it?
+    (#\W (copy-map map))
     (#\A nil)))
 
 (defun lambdas-count (map)

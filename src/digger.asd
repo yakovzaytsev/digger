@@ -5,10 +5,10 @@
 (asdf:defsystem :digger
   :serial t
   :version "0.1"
-  :depends-on (:cl-utilities)
   :components ((:file "package")
                (:file "util")
                (:file "map")
                (:file "map-update")
-               (:file "a-star")))
+               (:file "a-star")
+               (:file "solve")))
 

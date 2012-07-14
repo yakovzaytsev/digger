@@ -3,7 +3,7 @@
 (in-package "DIGGER")
 
 
-(declaim (inline x y f))
+(declaim (inline x y f heuristic))
 
 (defstruct (node (:conc-name nil))
   parent
@@ -14,7 +14,7 @@
   h)
 
 (defmethod print-object ((obj node) stream)
-   (format stream "<~A,~A-~A-~C>~%"
+   (format stream "<~A,~A-~A-~C>"
            (y (pos obj)) (x (pos obj)) (f obj) (move-dir obj)))
 
 (defun f (node)
@@ -32,14 +32,31 @@
            ((> (y parent-pos) (y pos)) #\D)
            (t #\W))))))
 
+(defun pt (x y)
+  (complex y x))
+(defun x (pos)
+  (imagpart pos))
+(defun y (pos)
+  (realpart pos))
 
-(defvar *map*)
+(defun manhattan (a b)
+  (+ (abs (- (x a) (x b)))
+     (abs (- (y a) (y b)))))
+
+(defun dir (from to)
+  (cond
+   ((< (x from) (x to)) #\R)
+   ((> (x from) (x to)) #\L)
+   ((< (y from) (y to)) #\U)
+   ((< (y from) (y to)) #\D)
+   (t #\W)))
+
+;; A*
+
 (defvar *open* ())
 (defvar *done* ())
 (defvar *goal*)
 
-
-;; A*
 
 (defun a* (map start goal)
   (let ((*goal* goal)
@@ -58,9 +75,12 @@
             (return (extract-path bestnode))
             (expand-node bestnode))))))
 
+(defun heuristic (pos)
+  (manhattan pos *goal*))
+
 (defun extract-path (node)
-  (do (path
-       (n node (parent n)))
+  (do ((n node (parent n))
+       path)
       ((null n) path)
     (push n path)))
 
@@ -68,8 +88,12 @@
   (macrolet ((add-node (node new-map type)
                (let ((n (gensym)))
                  `(let ((,n ,node))
-                    (push ,n (children node))
-                    (try-change-parent ,n node ,new-map ,type)))))
+                    (unless (and (parent node)
+                                 (eq (parent ,n) node)
+                                 (eq (parent node) (parent (parent node))))
+                      ;; only allow to wait for 2 consecutive turns
+                      (push ,n (children node))
+                      (try-change-parent ,n node ,new-map ,type))))))
     (dolist (next (possible-moves node))
       (destructuring-bind (pos . map) next
         (cond-it
@@ -122,27 +146,6 @@
             (change-node-prio child))
           (propagate-cost child))))))
 
-;; map
-
-(defun pt (x y)
-  (complex y x))
-(defun x (pos)
-  (imagpart pos))
-(defun y (pos)
-  (realpart pos))
-
-(defun heuristic (pos)
-  (+ (abs (- (x pos) (x *goal*)))
-     (abs (- (y pos) (y *goal*)))))
-
-(defun dir (from to)
-  (cond
-   ((< (x from) (x to)) #\R)
-   ((> (x from) (x to)) #\L)
-   ((< (y from) (y to)) #\U)
-   ((< (y from) (y to)) #\D)
-   (t #\W)))
-
 (defun possible-moves (node)
   (with-slots (pos map) node
     (let (rez)
@@ -180,17 +183,3 @@
 (defun next-map (map from to)
   (let ((map (execute-command (x from) (y from) (dir from to) map)))
     (when map (map-update map))))
-
-(defun find-char (char map)
-  (dotimes (i (rows map))
-    (dotimes (j (cols map))
-      (when (char= char (map-at map j i))
-        (return-from find-char (pt j i))))))
-
-(defun find-lambdas (map)
-  (let (rez)
-    (dotimes (i (rows map))
-      (dotimes (j (cols map))
-        (when (char= #\\ (map-at map j i))
-          (push (pt j i) rez))))
-    rez))

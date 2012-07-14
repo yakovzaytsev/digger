@@ -43,14 +43,7 @@ L  .\\#
     (let ((path (a* map r-pos l-pos)))
       (dolist (node path)
         (setf (map-at map (x (pos node)) (y (pos node))) (move-char node)))
-      (format t "~{~A~%~}" (let (rows)
-                             (dotimes (i (rows map) rows)
-                               (push (format nil "~{~C~}"
-                                             (let (chars)
-                                               (dotimes (j (cols map)
-                                                           (nreverse chars))
-                                                 (push (map-at map j i) chars))))
-                                     rows))))
+      (print-map map)
       path)))
 
 (defun move-char (node)
@@ -60,3 +53,13 @@ L  .\\#
     (#\R #\>)
     (#\D #\v)
     (#\U #\^)))
+
+(defun print-map (map)
+  (format t "~{~A~%~}"
+          (let (rows)
+            (dotimes (i (rows map) rows)
+              (push (format nil "~{~C~}"
+                            (let (chars)
+                              (dotimes (j (cols map) (nreverse chars))
+                                (push (map-at map j i) chars))))
+                    rows)))))

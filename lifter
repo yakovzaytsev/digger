@@ -8,4 +8,14 @@
 
 (in-package "DIGGER")
 
-(princ (load-map *standard-input*))
+(multiple-value-bind (map water rate proof) (load-map *standard-input*)
+  (defparameter *map* map)
+  (defparameter *water* (or water 0))
+  (defparameter *rate* (or rate 0))
+  (defparameter *proof* (or proof 10)))
+
+
+(handler-case (progn (solve map)
+                     (print-solution))
+   (sb-sys:interactive-interrupt ()
+     (print-solution)))

@@ -2,7 +2,6 @@
 
 (defpackage :digger
   (:use "CL")
-  (:import-from cl-utilities "COPY-ARRAY")
   (:shadow "MAP"))
 
 
